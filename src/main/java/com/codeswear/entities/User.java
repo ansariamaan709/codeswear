@@ -65,6 +65,9 @@ public class User implements UserDetails{
 
 	@OneToOne(mappedBy = "user", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, orphanRemoval = true)
 	private Cart cart;
+	
+	@OneToOne(mappedBy = "user", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, orphanRemoval = true)
+	private  PurchaseOrder purchasedOrder;
 
 
 
@@ -160,6 +163,22 @@ public class User implements UserDetails{
 
 	public void setCart(Cart cart) {
 		this.cart = cart;
+	}
+
+
+
+	
+
+
+
+	public PurchaseOrder getPurchasedOrder() {
+		return purchasedOrder;
+	}
+
+
+
+	public void setPurchasedOrder(PurchaseOrder purchasedOrder) {
+		this.purchasedOrder = purchasedOrder;
 	}
 
 

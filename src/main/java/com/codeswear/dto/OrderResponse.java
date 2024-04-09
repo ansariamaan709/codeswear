@@ -11,11 +11,23 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class OrderResponse {
 
-	private List<OrderDTO> content;
-	private Integer pageNumber;
-	private Integer pageSize;
-	private Long totalElements;
-	private Integer totalPages;
-	private boolean lastPage;
+	private List<OrderItemDTO> content;
+	private String userName;
+	public OrderResponse() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	public List<OrderItemDTO> getContent() {
+		return content;
+	}
+	public void setContent(List<OrderItemDTO> content) {
+		this.content = content;
+	}
+	public String getUserName() {
+		return userName;
+	}
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
 	
 }

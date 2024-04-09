@@ -50,7 +50,10 @@ public class Product {
 	private Category category;
 	
 	@OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER)
-	private List<CartItem> products = new ArrayList<>();
+	private List<CartItem> cartItem = new ArrayList<>();
+	
+	@OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER)
+	private List<OrderItem> orderItem = new ArrayList<>();
 
 	public Long getProductId() {
 		return productId;
@@ -124,13 +127,23 @@ public class Product {
 		this.category = category;
 	}
 
-	public List<CartItem> getProducts() {
-		return products;
+	public List<CartItem> getCartItem() {
+		return cartItem;
 	}
 
-	public void setProducts(List<CartItem> products) {
-		this.products = products;
+	public void setCartItem(List<CartItem> cartItem) {
+		this.cartItem = cartItem;
 	}
+
+	public List<OrderItem> getOrderItem() {
+		return orderItem;
+	}
+
+	public void setOrderItem(List<OrderItem> orderItem) {
+		this.orderItem = orderItem;
+	}
+
+	
 	
 	
 
