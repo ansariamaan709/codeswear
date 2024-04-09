@@ -1,4 +1,3 @@
-// hoodies.js
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import axios from "./api/customAxiosConfig/CustomAxiosConfig";
@@ -6,25 +5,26 @@ import Link from "next/link";
 import Image from "next/image";
 import SkeletonLoading from "./components/skeletonloading";
 
-const hoodies = () => {
-  const [hoodies, sethoodies] = useState([]);
+const Hoodies = () => {
+  const [hoodies, setHoodies] = useState([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const initialized = useRef(false);
+
   useEffect(() => {
     if (!initialized.current) {
       initialized.current = true;
-      fetchhoodies();
+      fetchHoodies();
     }
   }, []);
 
-  const fetchhoodies = async () => {
+  const fetchHoodies = async () => {
     try {
       const response = await axios.get("/api/products/hoodies");
-      sethoodies(response.data);
+      setHoodies(response.data);
     } catch (error) {
       console.error("Error fetching hoodies:", error);
-      sethoodies([]);
+      setHoodies([]);
       router.push("/components/login");
     } finally {
       setLoading(false);
@@ -33,7 +33,7 @@ const hoodies = () => {
 
   return (
     <section className="text-gray-400 bg-gray-900 body-font">
-      <div className="container px-5 py-24 mx-auto">
+      <div className="container px-5 py-12 mx-auto">
         <div className="flex flex-wrap -m-4">
           {loading
             ? // Display skeleton loading while fetching data
@@ -46,13 +46,14 @@ const hoodies = () => {
               hoodies.map((hoodie, index) => (
                 <div key={index} className="lg:w-1/4 md:w-1/2 p-4 w-full">
                   <Link href={`/product/${hoodie.productId}`}>
-                    <div className="block relative h-48 rounded overflow-hidden cursor-pointer">
+                    <div className="block relative h-64 rounded overflow-hidden cursor-pointer transition-transform duration-500 ease-in-out hover:scale-105">
                       <Image
-                        alt="ecommerce"
+                        alt={hoodie.productName}
                         width={500}
                         height={300}
                         className="object-cover object-center w-full h-full block"
                         src={`/images/Tshirts/${hoodie.image}`}
+                        loading="lazy"
                       />
                     </div>
                   </Link>
@@ -73,4 +74,4 @@ const hoodies = () => {
   );
 };
 
-export default hoodies;
+export default Hoodies;

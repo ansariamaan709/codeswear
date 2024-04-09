@@ -58,7 +58,7 @@ const ProductForm = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-lg mx-auto p-4 bg-gray-100 shadow-md rounded-md bg-white text-gray-800"
+      className="max-w-lg mx-auto mt-8 p-4 bg-gray-100 shadow-md rounded-md bg-white text-gray-800"
     >
       <h2 className="text-2xl mb-4 font-semibold text-gray-800">
         Add New Product
@@ -66,31 +66,22 @@ const ProductForm = () => {
       <div className="mb-4">
         <label
           htmlFor="image"
-          className="block text-sm font-medium text-gray-700"
+          className="block text-sm font-medium text-gray-700 mb-1"
         >
           Image
         </label>
-        <div className="mt-1 flex items-center">
-          <label
-            htmlFor="file-upload"
-            className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
-          >
-            <span>Choose a file</span>
-            <input
-              id="file-upload"
-              name="image"
-              type="file"
-              onChange={handleChange}
-              className="sr-only"
-            />
-          </label>
-          <p className="pl-1">or drag and drop</p>
-        </div>
+        <input
+          id="image"
+          name="image"
+          type="file"
+          onChange={handleChange}
+          className="w-full border rounded-lg py-2 px-3 bg-white text-gray-800"
+        />
       </div>
       <div className="mb-4">
         <label
           htmlFor="description"
-          className="block text-sm font-medium text-gray-700"
+          className="block text-sm font-medium text-gray-700 mb-1"
         >
           Description
         </label>
@@ -99,13 +90,13 @@ const ProductForm = () => {
           name="description"
           value={formData.description}
           onChange={handleChange}
-          className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md bg-white text-gray-800"
+          className="w-full border rounded-lg py-2 px-3 bg-white text-gray-800"
         />
       </div>
       <div className="mb-4">
         <label
           htmlFor="category"
-          className="block text-sm font-medium text-gray-700"
+          className="block text-sm font-medium text-gray-700 mb-1"
         >
           Category
         </label>
@@ -114,7 +105,7 @@ const ProductForm = () => {
           name="category"
           value={formData.category}
           onChange={handleChange}
-          className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          className="w-full border rounded-lg py-2 px-3 bg-white text-gray-800"
         >
           <option value="">Select a category</option>
           <option value="Tshirts">Tshirts</option>
@@ -125,24 +116,24 @@ const ProductForm = () => {
       </div>
       <div className="mb-4">
         <label
-          htmlFor="name"
-          className="block text-sm font-medium text-gray-700"
+          htmlFor="productName"
+          className="block text-sm font-medium text-gray-700 mb-1"
         >
           Name
         </label>
         <input
           type="text"
-          id="name"
+          id="productName"
           name="productName"
           value={formData.productName}
           onChange={handleChange}
-          className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md bg-white text-gray-800 py-2 px-3" // Added Tailwind CSS classes for styling
+          className="w-full border rounded-lg py-2 px-3 bg-white text-gray-800"
         />
       </div>
       <div className="mb-4">
         <label
           htmlFor="price"
-          className="block text-sm font-medium text-gray-700"
+          className="block text-sm font-medium text-gray-700 mb-1"
         >
           Price
         </label>
@@ -152,7 +143,7 @@ const ProductForm = () => {
           name="price"
           value={formData.price}
           onChange={handleChange}
-          className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md bg-white text-gray-800 py-2 px-3" // Added Tailwind CSS classes for styling
+          className="w-full border rounded-lg py-2 px-3 bg-white text-gray-800"
         />
       </div>
       <button

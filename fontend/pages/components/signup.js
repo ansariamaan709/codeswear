@@ -1,4 +1,3 @@
-// components/SignupForm.js
 import React, { useState } from "react";
 import axios from "axios";
 
@@ -36,13 +35,13 @@ const SignupForm = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg bg-white text-gray-800 shadow-lg"
+      className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-lg"
     >
       <div className="mb-4">
         <input
           type="text"
           name="name"
-          className="w-full px-3 py-2 border rounded-lg bg-white text-gray-800"
+          className="w-full px-3 py-2 border rounded-lg bg-gray-100 text-gray-800 placeholder-gray-500 focus:outline-none focus:bg-white"
           placeholder="Username"
           value={formData.username}
           onChange={handleChange}
@@ -53,7 +52,7 @@ const SignupForm = () => {
         <input
           type="email"
           name="email"
-          className="w-full px-3 py-2 border rounded-lg bg-white text-gray-800"
+          className="w-full px-3 py-2 border rounded-lg bg-gray-100 text-gray-800 placeholder-gray-500 focus:outline-none focus:bg-white"
           placeholder="Email"
           value={formData.email}
           onChange={handleChange}
@@ -64,7 +63,7 @@ const SignupForm = () => {
         <input
           type="password"
           name="password"
-          className="w-full px-3 py-2 border rounded-lg bg-white text-gray-800"
+          className="w-full px-3 py-2 border rounded-lg bg-gray-100 text-gray-800 placeholder-gray-500 focus:outline-none focus:bg-white"
           placeholder="Password"
           value={formData.password}
           onChange={handleChange}

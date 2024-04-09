@@ -36,7 +36,7 @@ const Tshirts = () => {
     <>
       <LoadingBar />
       <section className="text-gray-400 bg-gray-900 body-font">
-        <div className="container px-5 py-24 mx-auto">
+        <div className="container px-5 py-12 mx-auto">
           <div className="flex flex-wrap -m-4">
             {loading
               ? // Display skeleton loading while fetching data
@@ -55,14 +55,14 @@ const Tshirts = () => {
                     className="lg:w-1/4 md:w-1/2 p-4 w-full transition-opacity duration-500 ease-in-out"
                   >
                     <Link href={`/product/${tshirt.productId}`}>
-                      <div className="block relative h-48 rounded overflow-hidden cursor-pointer transition-transform duration-500 ease-in-out hover:scale-105">
+                      <div className="block relative h-64 rounded overflow-hidden cursor-pointer transition-transform duration-500 ease-in-out hover:scale-105">
                         <Image
-                          alt="ecommerce"
+                          alt={tshirt.productName}
                           width={500}
                           height={300}
                           className="object-cover object-center w-full h-full block"
                           src={`/images/Tshirts/${tshirt.image}`}
-                          loading="eager"
+                          loading="lazy"
                         />
                       </div>
                     </Link>
