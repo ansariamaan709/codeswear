@@ -23,17 +23,22 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.codeswear.dao.CartItemRepository;
 import com.codeswear.dao.CartRepository;
+import com.codeswear.dao.OrderRepository;
 import com.codeswear.dao.ProductRepository;
 import com.codeswear.dao.UserRepository;
 import com.codeswear.entities.Cart;
 import com.codeswear.entities.CartItem;
 import com.codeswear.entities.Category;
+import com.codeswear.entities.OrderItem;
 import com.codeswear.entities.Product;
+import com.codeswear.entities.PurchaseOrder;
 import com.codeswear.entities.User;
 import com.codeswear.enums.CategoryEnums;
 import com.codeswear.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -50,6 +55,9 @@ public class ProductController {
 
 	@Autowired
 	CartItemRepository cartItemRepo;
+
+	@Autowired
+	OrderRepository orderRepo;
 
 	@PostMapping("api/product/addProduct")
 	public ResponseEntity<String> addProduct(@RequestParam("image") MultipartFile image,
@@ -68,18 +76,16 @@ public class ProductController {
 				Category category1 = new Category();
 				Long categoryType = null;
 				if (category.equalsIgnoreCase("Tshirts")) {
-				CategoryEnums categoryEnums= CategoryEnums.TSHIRTS;
-				categoryType = (long) categoryEnums.getCode();
-				}
-				else if (category.equalsIgnoreCase("Hoodies")) {
-					CategoryEnums categoryEnums= CategoryEnums.HOODIES;
+					CategoryEnums categoryEnums = CategoryEnums.TSHIRTS;
+					categoryType = (long) categoryEnums.getCode();
+				} else if (category.equalsIgnoreCase("Hoodies")) {
+					CategoryEnums categoryEnums = CategoryEnums.HOODIES;
+					categoryType = (long) categoryEnums.getCode();
+				} else {
+					CategoryEnums categoryEnums = CategoryEnums.PANTS;
 					categoryType = (long) categoryEnums.getCode();
 				}
-				else {
-					CategoryEnums categoryEnums= CategoryEnums.PANTS;
-					categoryType = (long) categoryEnums.getCode();
-				}
-				
+
 				category1.setCategoryType(categoryType);
 				category1.setCategoryName(category);
 				product.setCategory(category1);
@@ -116,7 +122,7 @@ public class ProductController {
 
 		return ResponseEntity.ok(productDTO);
 	}
-	
+
 	@GetMapping("api/products/hoodies")
 	@Operation(summary = "Get All Hoodies", security = @SecurityRequirement(name = "bearerAuth"))
 	public ResponseEntity<?> getAllHoodies() {
@@ -203,6 +209,56 @@ public class ProductController {
 		}
 	}
 
+	@PostMapping("/api/user/order")
+	public ResponseEntity<?> placeOrder(Principal principal) {
+		try {
+			String email = principal.getName();
+			User user = this.userRepo.findByEmail(email);
+			if (user == null) {
+				return ResponseEntity.notFound().build(); // Return 404 if user not found
+			}
+			PurchaseOrder order = this.orderRepo.findByUser(user);
+			if (order == null) {
+				order = new PurchaseOrder();
+				order.setUser(user);
+			}
+			Cart cart = this.cartRepo.findByUser(user);
+			List<CartItem> cartItems = cart.getCartItems();
+			for (CartItem cartItem : cartItems) {
+				OrderItem orderItem = new OrderItem();
+				orderItem.setProduct(cartItem.getProduct());
+				orderItem.setQuantity(cartItem.getQuantity());
+				orderItem.setDiscount(cartItem.getDiscount());
+				orderItem.setPurchaseOrder(order);
+				order.getOrderItems().add(orderItem);
+			}
+
+			// Save order and cart in a transaction
+			try {
+				this.orderRepo.save(order);
+				for (CartItem cartItem : cartItems) {
+					this.cartItemRepo.deleteByCartItemIdQuery(cartItem.getCartItemId());
+
+				}
+				cart.setCartItems(cartItems);
+				this.cartRepo.save(cart);
+				return ResponseEntity.ok().build(); // Return 200 if successful
+			} catch (Exception e) {
+				// Log error
+
+				// Rollback changes if transactional support is added
+				e.printStackTrace();
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // Return 500 for internal
+																						// server error
+			}
+		} catch (Exception e) {
+			// Log error
+
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // Return 500 for internal server
+																					// error
+		}
+	}
+
 	@GetMapping("/api/user/cart")
 	@Operation(summary = "Get User Cart", security = @SecurityRequirement(name = "bearerAuth"))
 	public ResponseEntity<?> getUserCart(Principal principal) {
@@ -217,6 +273,52 @@ public class ProductController {
 		}
 		return ResponseEntity.ok(CartItems);
 
+	}
+
+	@GetMapping("/api/user/my-orders")
+	@Operation(summary = "Get User Orders", security = @SecurityRequirement(name = "bearerAuth"))
+	public ResponseEntity<?> getUserOrders(Principal principal) {
+		User user = this.userRepo.findByEmail(principal.getName());
+		PurchaseOrder order = user.getPurchasedOrder();
+		if (order !=null) {
+		List<OrderItem> orderItems = order.getOrderItems();
+
+		List<OrderItemDTO> orderItemsDTO = new ArrayList<>();
+		for (OrderItem orderItem : orderItems) {
+			OrderItemDTO orderItemDTO = new OrderItemDTO(orderItem.getOrderItemId(), orderItem.getQuantity(),
+					orderItem.getDiscount(), orderItem.getProduct().getPrice(), orderItem.getProduct().getImage(),
+					orderItem.getProduct().getProductName());
+			orderItemsDTO.add(orderItemDTO);
+		}
+		
+		return ResponseEntity.ok(orderItemsDTO);
+		}else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+	
+	@GetMapping("/api/admin/gellAllOrders")
+	@Operation(summary = "Get All Orders", security = @SecurityRequirement(name = "bearerAuth"))
+	public ResponseEntity<?> getAllOrders(Principal principal) {
+		User user = this.userRepo.findByEmail(principal.getName());
+		List<PurchaseOrder> orders = orderRepo.findAll();
+		List<OrderResponse> orderResponseList = new ArrayList<>();
+		for (PurchaseOrder order : orders) {
+			OrderResponse orderResponse = new OrderResponse();
+			orderResponse.setUserName(order.getUser().getUsername());
+			List<OrderItem> orderItems = order.getOrderItems();
+			List<OrderItemDTO> orderItemsDTO = new ArrayList<>();
+			for (OrderItem orderItem : orderItems) {
+				OrderItemDTO orderItemDTO = new OrderItemDTO(orderItem.getOrderItemId(), orderItem.getQuantity(),
+						orderItem.getDiscount(), orderItem.getProduct().getPrice(), orderItem.getProduct().getImage(),
+						orderItem.getProduct().getProductName());
+				orderItemsDTO.add(orderItemDTO);
+			}
+			orderResponse.setContent(orderItemsDTO);
+			orderResponseList.add(orderResponse);
+		}
+		return new ResponseEntity<>(orderResponseList,HttpStatus.OK);
+		
 	}
 
 	@DeleteMapping("/api/user/cart/{cartItemId}")
@@ -304,26 +406,24 @@ public class ProductController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Quantity not updated");
 		}
 	}
-	
-	 @DeleteMapping("/api/product/delete/{productId}")
-	    public ResponseEntity<String> deleteProduct(@PathVariable Long productId) {
-	        // Check if the product exists
-	        if (!productRepo.existsById(productId)) {
-	        	return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Product Not found");
-	        }
-	       
-	        if (cartItemRepo.existsByProductProductId(productId)) {
-	        	return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product Cannot be Deleted");
-	        }
-	        try {
-	       
-	            productRepo.deleteById(productId);
-	            return ResponseEntity.ok("Product deleted successfully");
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete product");
-	        }
-	    }
+
+	@DeleteMapping("/api/product/delete/{productId}")
+	public ResponseEntity<String> deleteProduct(@PathVariable Long productId) {
+		// Check if the product exists
+		if (!productRepo.existsById(productId)) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Product Not found");
+		}
+
+		if (cartItemRepo.existsByProductProductId(productId)) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product Cannot be Deleted");
+		}
+		try {
+
+			productRepo.deleteById(productId);
+			return ResponseEntity.ok("Product deleted successfully");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete product");
+		}
 	}
-
-
+}

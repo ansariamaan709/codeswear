@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
 import axios from "./api/customAxiosConfig/CustomAxiosConfig";
-import Link from "next/link";
 import Image from "next/image";
 import SkeletonLoading from "./components/skeletonloading";
+import Link from "next/link";
 
 const CartPage = () => {
   const [cart, setCart] = useState([]);
@@ -32,7 +32,6 @@ const CartPage = () => {
     try {
       const response = await axios.get("/api/user/cart");
       setCart(Array.isArray(response.data) ? response.data : [response.data]);
-      console.log(response.data);
     } catch (error) {
       console.error("Error fetching cart:", error);
       setCart([]);
@@ -83,34 +82,32 @@ const CartPage = () => {
     }
   };
 
+  const handleCheckout = () => {
+    if (cart.length > 0) {
+      // Navigate to the order details page
+      router.push("/orderdetails");
+    }
+  };
+
   return (
-    <>
-      {loading &&
-        Array.from({ length: 8 }).map((_, index) => (
-          <div key={index} className="lg:w-1/4 md:w-1/2 p-4 w-full">
-            <SkeletonLoading />
-          </div>
-        ))}
-      {cart && (
-        <div className="container mx-auto py-8">
-          <h1 className="text-3xl font-semibold mb-8">Your Cart</h1>
-          {successMessage && (
-            <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-white p-2 rounded-lg shadow-md flex items-center">
-              <p className="text-green-600 text-lg mr-2">{successMessage}</p>
-              <button
-                onClick={() => setSuccessMessage("")}
-                className="text-red-600 hover:text-red-800 focus:outline-none bg-transparent border-none cursor-pointer"
-              >
-                X
-              </button>
+    <div className="container mx-auto py-8">
+      <h1 className="text-3xl font-semibold mb-8">Your Cart</h1>
+      {loading && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {Array.from({ length: 8 }).map((_, index) => (
+            <div key={index} className="bg-white p-6 shadow-md rounded-lg">
+              <SkeletonLoading />
             </div>
-          )}
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-semibold"></h1>
-            <button className="bg-blue-500 text-white px-6 py-2 rounded-md">
-              Checkout
-            </button>
-          </div>
+          ))}
+        </div>
+      )}
+      {!loading && cart.length === 0 && (
+        <div className="text-center text-lg text-gray-600">
+          Your cart is empty.
+        </div>
+      )}
+      {!loading && cart.length > 0 && (
+        <>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {cart.map((item, index) => (
               <div key={index} className="bg-white p-6 shadow-md rounded-lg">
@@ -121,7 +118,7 @@ const CartPage = () => {
                   height={200}
                   className="mx-auto"
                 />
-                <h2 className="text-lg font-semibold mt-4">
+                <h2 className="text-lg font-semibold text-gray-900 mt-4">
                   {item.productName}
                 </h2>
                 <p className="text-gray-600">Price: ${item.price}</p>
@@ -131,7 +128,7 @@ const CartPage = () => {
                       className={`bg-white-200 text-gray-800 px-3 py-1 rounded-md ${
                         item.quantity === 1
                           ? "opacity-50 cursor-not-allowed"
-                          : "transition-opacity hover:bg-gray-300"
+                          : "hover:bg-gray-300"
                       }`}
                       onClick={() => handleDecreaseQuantity(item.cartItemId)}
                       disabled={item.quantity === 1}
@@ -142,14 +139,14 @@ const CartPage = () => {
                       {item.quantity}
                     </span>
                     <button
-                      className="bg-white-200 text-gray-800 px-3 py-1 rounded-md"
+                      className="bg-white-200 text-gray-800 px-3 py-1 rounded-md hover:bg-gray-300"
                       onClick={() => handleIncreaseQuantity(item.cartItemId)}
                     >
                       +
                     </button>
                   </div>
                   <button
-                    className="bg-red-500 text-white px-3 py-1 rounded-md"
+                    className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
                     onClick={() => handleRemove(item.cartItemId)}
                   >
                     Remove
@@ -158,15 +155,31 @@ const CartPage = () => {
               </div>
             ))}
           </div>
-
           <div className="flex justify-end mt-8">
-            <div className="text-lg font-semibold mr-4">
-              Total Price: {totalPrice}
+            <div className="text-lg font-semibold">
+              Total Price: ${totalPrice.toFixed(2)}
             </div>
           </div>
+        </>
+      )}
+      {successMessage && (
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-md">
+          {successMessage}
         </div>
       )}
-    </>
+
+      <div className="flex justify-end mt-8">
+        <button
+          className={`px-6 py-3 bg-blue-500 text-white font-semibold rounded hover:bg-blue-600 ${
+            cart.length === 0 ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          disabled={cart.length === 0}
+          onClick={handleCheckout}
+        >
+          CheckOut
+        </button>
+      </div>
+    </div>
   );
 };
 

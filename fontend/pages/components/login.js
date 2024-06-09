@@ -1,4 +1,3 @@
-// components/LoginForm.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -11,7 +10,7 @@ const LoginForm = () => {
     AuthenticationService.logout();
   }, []);
 
-  const [credentials, setcredentials] = useState({
+  const [credentials, setCredentials] = useState({
     userName: "",
     password: "",
   });
@@ -21,6 +20,7 @@ const LoginForm = () => {
     showSuccessMessage: false,
   });
   const router = useRouter();
+
   const validate = () => {
     const errors = {};
 
@@ -83,7 +83,7 @@ const LoginForm = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setcredentials((prevState) => ({
+    setCredentials((prevState) => ({
       ...prevState,
       [name]: value,
     }));
@@ -98,7 +98,7 @@ const LoginForm = () => {
         <input
           type="text"
           name="userName"
-          className="w-full px-3 py-2 border rounded-lg"
+          className="w-full px-3 py-2 border rounded-lg bg-gray-100 text-gray-800 focus:outline-none focus:bg-white"
           placeholder="Username"
           value={credentials.userName}
           onChange={handleChange}
@@ -109,7 +109,7 @@ const LoginForm = () => {
         <input
           type="password"
           name="password"
-          className="w-full px-3 py-2 border rounded-lg bg-white text-gray-800"
+          className="w-full px-3 py-2 border rounded-lg bg-gray-100 text-gray-800 focus:outline-none focus:bg-white"
           placeholder="Password"
           value={credentials.password}
           onChange={handleChange}
